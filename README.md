@@ -3,7 +3,7 @@ Create a spinning ascii cube using python3 and the curses library
 
 ### Preferences
 - To get a centered cube set terminal size to 100x50
-- Have python3 installed
+- Install python3
 
 ### Goals
 - [x] Draw stationary cube.
@@ -11,7 +11,9 @@ Create a spinning ascii cube using python3 and the curses library
 - [ ] Draw the faces using different ascii symbols to create a sense of depth
 
 ### To run
-Go to project directory and run:
+- Open terminal
+- Go to project directory
+- run command:
 ```sh
 python3 cube.py
 ```
