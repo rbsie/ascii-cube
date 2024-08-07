@@ -1,8 +1,8 @@
 import time
 import curses
 
-def draw_line(stdscr, x0, y0, x1, y1):
-    """Draw a line using Bresenham's line algorithm"""
+def draw_edge(stdscr, x0, y0, x1, y1):
+    """Use bresenham's algorithm to draw an edge"""
     dx = abs(x1 - x0)
     dy = abs(y1 - y0)
     sx = 1 if x0 < x1 else -1
@@ -11,8 +11,8 @@ def draw_line(stdscr, x0, y0, x1, y1):
 
     while x0 != x1 or y0 != y1:
         try:
-            # Draw point
-            stdscr.addstr(y0, x0, '#')
+            # Draw dot in terminal
+            stdscr.addstr(y0, x0, '#') # y value first!!!
             stdscr.refresh()
             time.sleep(0.01)
         except curses.error:
@@ -26,29 +26,37 @@ def draw_line(stdscr, x0, y0, x1, y1):
             y0 += sy
 
 def project(x, y, z):
-    """Project 3D coordinates onto 2D plane"""
-    c = 3   # Add 3 to z to work around Devide-By-Zero
-    factor = 25 / (z + c)  # Change to scale up and down
-    new_x = int(x * factor + 50)  # Terminal width 100
-    new_y = int(-y * factor + 25)  # Terminal height 50
+    """Project 3D coordinates onto 2D plane and scale to terminal size"""
+    width = 100 # Terminal width
+    height = 50 # Terminal height
+    
+    factor = 25 # Change to scale up and down 
+    z += 3   # Add 3 to z avoid Devide-By-Zero
+    new_x = int((x * factor) / z)
+    new_y = int((-y * factor) / z)
+
+    # Center in terminal window
+    new_x += int(width / 2)
+    new_y += int(height / 2)
+
     return new_x, new_y
 
 def print_cube(stdscr, vertices):
-    """Print the cube on the screen"""
+    """Print cube in terminal"""
     # Define the cube's edges by connecting vertices
-    edges = [
+    vectors = [
         (0, 1), (1, 2), (2, 3), (3, 0),
         (4, 5), (5, 6), (6, 7), (7, 4),
         (0, 4), (1, 5), (2, 6), (3, 7)
         ]
 
-    for edge in edges:
-        start_vertex = vertices[edge[0]]
-        end_vertex = vertices[edge[1]]
-        start_x, start_y = project(*start_vertex)
-        end_x, end_y = project(*end_vertex)
+    for vector in vectors:
+        tail_vertex = vertices[vector[0]]
+        head_vertex = vertices[vector[1]]
+        tail_x, tail_y = project(*tail_vertex)
+        head_x, head_y = project(*head_vertex)
         try:
-            draw_line(stdscr, start_x, start_y, end_x, end_y)
+            draw_edge(stdscr, tail_x, tail_y, head_x, head_y)
         except curses.error:
             pass
 
@@ -56,12 +64,11 @@ def main(stdscr):
     # Hide cursor
     curses.curs_set(0)
 
-    # Define cube dimensions
+    # Define cube proportions
     width = 2  # Width of the cube
     height = 2  # Height of the cube
     depth = 2  # Depth of the cube
 
-    # Calculate half dimensions for convenience
     half_width = width / 2
     half_height = height / 2
     half_depth = depth / 2
@@ -85,7 +92,7 @@ def main(stdscr):
         print_cube(stdscr, vertices)
 
         stdscr.refresh()
-        time.sleep(3)  # Adjust speed of rotation
+        time.sleep(3)   # Refresh rate
 
 if __name__ == "__main__":
     curses.wrapper(main)
