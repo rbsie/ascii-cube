@@ -77,7 +77,7 @@ def main(stdscr):
     half_height = height / 2
     half_depth = depth / 2
 
-    # Define initial cube vertices
+    # Define initial cube vertices around (0, 0, 0)
     vertices = [
         (-half_width, -half_height, -half_depth),   # 0 - l b f
         (half_width, -half_height, -half_depth),    # 1 - r b f
