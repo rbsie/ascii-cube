@@ -27,11 +27,14 @@ def draw_edge(stdscr, x0, y0, x1, y1):
 
 def project(x, y, z):
     """Project 3D coordinates onto 2D plane and scale to terminal size"""
-    width = 100 # Terminal width
-    height = 50 # Terminal height
+    # Define terminal size
+    width = 100
+    height = 50
     
-    factor = 25 # Change to scale up and down 
-    z += 3   # Add 3 to z avoid Devide-By-Zero
+    factor = 20 # Change to scale up and down 
+    z += 5   # Translate z away from (0, 0, 0) to avoid Devide-By-Zero
+
+    # Devide by z because camera is at (0, 0, 0)
     new_x = int((x * factor) / z)
     new_y = int((-y * factor) / z)
 
@@ -43,7 +46,7 @@ def project(x, y, z):
 
 def print_cube(stdscr, vertices):
     """Print cube in terminal"""
-    # Define the cube's edges by connecting vertices
+    # Define edges by connecting vertices
     vectors = [
         (0, 1), (1, 2), (2, 3), (3, 0),
         (4, 5), (5, 6), (6, 7), (7, 4),
@@ -62,12 +65,12 @@ def print_cube(stdscr, vertices):
 
 def main(stdscr):
     # Hide cursor
-    curses.curs_set(0)
+    curses.curs_set(False)
 
-    # Define cube proportions
-    width = 2  # Width of the cube
-    height = 2  # Height of the cube
-    depth = 2  # Depth of the cube
+    # Define cube dimensions (even numbers only!)
+    width = 4
+    height = 4
+    depth = 4
 
     half_width = width / 2
     half_height = height / 2
