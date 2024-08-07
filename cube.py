@@ -34,7 +34,8 @@ def project(x, y, z):
     factor = 20 # Change to scale up and down 
     z += 5   # Translate z away from (0, 0, 0) to avoid Devide-By-Zero
 
-    # Devide by z because camera is at (0, 0, 0)
+    # Devide by z because camera is at (0, 0, 0) 
+    # see: https://stackoverflow.com/questions/724219/how-to-convert-a-3d-point-into-2d-perspective-projection/724243#724243
     new_x = int((x * factor) / z)
     new_y = int((-y * factor) / z)
 
@@ -44,8 +45,8 @@ def project(x, y, z):
 
     return new_x, new_y
 
-def print_cube(stdscr, vertices):
-    """Print cube in terminal"""
+def draw_cube(stdscr, vertices):
+    """Draw cube in terminal"""
     # Define edges by connecting vertices
     vectors = [
         (0, 1), (1, 2), (2, 3), (3, 0),
@@ -78,21 +79,21 @@ def main(stdscr):
 
     # Define initial cube vertices
     vertices = [
-        (-half_width, -half_height, -half_depth),   # 0 - left bottom front
-        (half_width, -half_height, -half_depth),    # 1 - right bottom front
-        (half_width, half_height, -half_depth),     # 2 - right top front
-        (-half_width, half_height, -half_depth),    # 3 - left top front
-        (-half_width, -half_height, half_depth),    # 4 - left bottom back
-        (half_width, -half_height, half_depth),     # 5 - right bottom back
-        (half_width, half_height, half_depth),      # 6 - right top back
-        (-half_width, half_height, half_depth)      # 7 - left top back
+        (-half_width, -half_height, -half_depth),   # 0 - l b f
+        (half_width, -half_height, -half_depth),    # 1 - r b f
+        (half_width, half_height, -half_depth),     # 2 - r t f
+        (-half_width, half_height, -half_depth),    # 3 - l t f
+        (-half_width, -half_height, half_depth),    # 4 - l b b
+        (half_width, -half_height, half_depth),     # 5 - r b b
+        (half_width, half_height, half_depth),      # 6 - r t b
+        (-half_width, half_height, half_depth)      # 7 - l t b
     ]
 
     # Draw cube loop
     while 1:
         stdscr.clear()
 
-        print_cube(stdscr, vertices)
+        draw_cube(stdscr, vertices)
 
         stdscr.refresh()
         time.sleep(3)   # Refresh rate
