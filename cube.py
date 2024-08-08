@@ -1,5 +1,26 @@
-import time
 import curses
+import time
+import math
+
+def rotate(x_angle, y_angle, z_angle, x, y, z):
+    '''Rotates vector around x, y, z axes by given angles'''
+    # Rotate around x
+    first_x = x
+    first_y = y * math.cos(x_angle) + z * (-math.sin(x_angle))
+    first_z = y * math.sin(x_angle) + z * math.cos(x_angle)
+
+    # Rotate around y
+    second_x = first_x * math.cos(y_angle) + first_z * math.sin(y_angle)
+    second_y = first_y
+    second_z = first_x * (-math.sin(y_angle)) + first_z * math.cos(y_angle)
+
+    # Rotate around z
+    third_x = second_x * math.cos(z_angle) + second_y * (-math.sin(z_angle))
+    third_y = second_x * math.sin(z_angle) + second_y * math.cos(z_angle)
+    third_z = second_z
+
+    return third_x, third_y, third_z
+
 
 def draw_edge(stdscr, x0, y0, x1, y1):
     """Use bresenham's algorithm to draw an edge"""
@@ -13,8 +34,6 @@ def draw_edge(stdscr, x0, y0, x1, y1):
         try:
             # Draw dot in terminal
             stdscr.addstr(y0, x0, '#') # y value first!!!
-            stdscr.refresh()
-            time.sleep(0.01)
         except curses.error:
             pass
         e2 = 2 * err
@@ -89,14 +108,31 @@ def main(stdscr):
         (-half_width, half_height, half_depth)      # 7 - l t b
     ]
 
+    x_angle, y_angle, z_angle = 0, 0, 0
+    factor = 0
+
     # Draw cube loop
     while 1:
         stdscr.clear()
 
-        draw_cube(stdscr, vertices)
+        rotated_vertices = []
 
+        for vertex in vertices:
+            rotated_vertex = rotate(x_angle, y_angle, z_angle, *vertex)
+            rotated_vertices.append(rotated_vertex)
+
+        draw_cube(stdscr, rotated_vertices)
         stdscr.refresh()
-        time.sleep(3)   # Refresh rate
+
+        # Combining multiple sine and cosine waves with different frequencies and amplitudes gives a rich,
+        # harmonized rotational effect
+        x_angle = math.sin(0.01 * factor) * 40 + math.cos(0.005 * factor) * 30
+        y_angle = math.sin(0.015 * factor) * 50 + math.cos(0.01 * factor) * 20
+        z_angle = math.sin(0.02 * factor) * 60 + math.cos(0.02 * factor) * 10
+
+        factor += 0.1
+
+        time.sleep(0.05)   # Refresh rate
 
 if __name__ == "__main__":
     curses.wrapper(main)
