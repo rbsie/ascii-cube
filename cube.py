@@ -2,6 +2,15 @@ import curses
 import time
 import math
 
+def complexHarmonizedSpin(x_angle, y_angle, z_angle, factor):
+    '''Combining multiple sine and cosine waves with different frequencies and amplitudes gives a rich, harmonized rotational effect'''
+
+    x_angle = math.sin(0.01 * factor) * 40 + math.cos(0.005 * factor) * 30
+    y_angle = math.sin(0.015 * factor) * 50 + math.cos(0.01 * factor) * 20
+    z_angle = math.sin(0.02 * factor) * 60 + math.cos(0.02 * factor) * 10
+
+    return x_angle, y_angle, z_angle
+
 def rotate(x_angle, y_angle, z_angle, x, y, z):
     '''Rotates vector around x, y, z axes by given angles'''
     # Rotate around x
@@ -73,6 +82,7 @@ def draw_cube(stdscr, vertices):
         (0, 4), (1, 5), (2, 6), (3, 7)
         ]
 
+    # Project tail and head vertex to 2d plane and draw vector
     for vector in vectors:
         tail_vertex = vertices[vector[0]]
         head_vertex = vertices[vector[1]]
@@ -115,22 +125,18 @@ def main(stdscr):
     while 1:
         stdscr.clear()
 
+        # Rotate vertices and redraw cube
         rotated_vertices = []
-
         for vertex in vertices:
             rotated_vertex = rotate(x_angle, y_angle, z_angle, *vertex)
             rotated_vertices.append(rotated_vertex)
-
         draw_cube(stdscr, rotated_vertices)
         stdscr.refresh()
 
-        # Combining multiple sine and cosine waves with different frequencies and amplitudes gives a rich,
-        # harmonized rotational effect
-        x_angle = math.sin(0.01 * factor) * 40 + math.cos(0.005 * factor) * 30
-        y_angle = math.sin(0.015 * factor) * 50 + math.cos(0.01 * factor) * 20
-        z_angle = math.sin(0.02 * factor) * 60 + math.cos(0.02 * factor) * 10
+        # Increasing angles
+        x_angle, y_angle, z_angle = complexHarmonizedSpin(x_angle, y_angle, z_angle, factor)
 
-        factor += 0.1
+        factor += 0.1   # Rotation angle factor
 
         time.sleep(0.05)   # Refresh rate
 
