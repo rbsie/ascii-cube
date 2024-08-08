@@ -30,9 +30,36 @@ def rotate(x_angle, y_angle, z_angle, x, y, z):
 
     return third_x, third_y, third_z
 
+def fill_area(stdscr, x0, y0, x1, y1, x2, y2, x3, y3):
+    """Fill the area defined by 4 vertices"""
+    # Draw edges and store their points
+    edge1 = get_line_points(x0, y0, x1, y1)
+    edge2 = get_line_points(x1, y1, x2, y2)
+    edge3 = get_line_points(x2, y2, x3, y3)
+    edge4 = get_line_points(x3, y3, x0, y0)
 
-def draw_edge(stdscr, x0, y0, x1, y1):
-    """Use bresenham's algorithm to draw an edge"""
+    # Merge all edges into a list of points
+    edges = edge1 + edge2 + edge3 + edge4
+    edges = list(set(edges))  # Remove duplicates
+
+    # Fill area between edges
+    y_min = min(y0, y1, y2, y3)
+    y_max = max(y0, y1, y2, y3)
+
+    for y in range(y_min, y_max + 1):
+        # Find intersections with the scanline
+        intersections = sorted([x for x, yy in edges if yy == y])
+        if len(intersections) >= 2:
+            for x in range(intersections[0], intersections[-1] + 1):
+                try:
+                    stdscr.addstr(y, x, '#')  # y value first!
+                except curses.error:
+                    pass
+
+
+def get_line_points(x0, y0, x1, y1):
+    """Return all points on a line using Bresenham's algorithm."""
+    points = []
     dx = abs(x1 - x0)
     dy = abs(y1 - y0)
     sx = 1 if x0 < x1 else -1
@@ -40,11 +67,7 @@ def draw_edge(stdscr, x0, y0, x1, y1):
     err = dx - dy
 
     while x0 != x1 or y0 != y1:
-        try:
-            # Draw dot in terminal
-            stdscr.addstr(y0, x0, '#') # y value first!!!
-        except curses.error:
-            pass
+        points.append((x0, y0))
         e2 = 2 * err
         if e2 > -dy:
             err -= dy
@@ -52,6 +75,9 @@ def draw_edge(stdscr, x0, y0, x1, y1):
         if e2 < dx:
             err += dx
             y0 += sy
+    points.append((x1, y1))  # Include the last point
+
+    return points
 
 def project(x, y, z):
     """Project 3D coordinates onto 2D plane and scale to terminal size"""
@@ -75,23 +101,33 @@ def project(x, y, z):
 
 def draw_cube(stdscr, vertices):
     """Draw cube in terminal"""
-    # Define edges by connecting vertices
-    vectors = [
-        (0, 1), (1, 2), (2, 3), (3, 0),
-        (4, 5), (5, 6), (6, 7), (7, 4),
-        (0, 4), (1, 5), (2, 6), (3, 7)
-        ]
+    # Define faces by connecting vertices
+    faces = [
+        (0, 1, 2, 3),
+        (0, 1, 5, 4),
+        (4, 5, 6, 7),
+        (2, 3, 7, 6),
+        (0, 4, 7, 3),
+        (1, 5, 6, 2)
+    ]
 
-    # Project tail and head vertex to 2d plane and draw vector
-    for vector in vectors:
-        tail_vertex = vertices[vector[0]]
-        head_vertex = vertices[vector[1]]
-        tail_x, tail_y = project(*tail_vertex)
-        head_x, head_y = project(*head_vertex)
+    # Project all 4 vertices of a face to 2d plane and fill the area
+    for face in faces:
+        first_vertex = vertices[face[0]]
+        second_vertex = vertices[face[1]]
+        third_vertex = vertices[face[2]]
+        fourth_vertex = vertices[face[3]]
+        # Project vertices
+        x0, y0 = project(*first_vertex)
+        x1, y1 = project(*second_vertex)
+        x2, y2 = project(*third_vertex)
+        x3, y3 = project(*fourth_vertex)
         try:
-            draw_edge(stdscr, tail_x, tail_y, head_x, head_y)
+            fill_area(stdscr, x0, y0, x1, y1, x2, y2, x3, y3)
         except curses.error:
             pass
+            
+        
 
 def main(stdscr):
     # Hide cursor
@@ -138,7 +174,7 @@ def main(stdscr):
 
         factor += 0.1   # Rotation angle factor
 
-        time.sleep(0.05)   # Refresh rate
+        time.sleep(0.04)   # Refresh rate
 
 if __name__ == "__main__":
     curses.wrapper(main)
