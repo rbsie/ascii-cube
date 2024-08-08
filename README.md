@@ -7,7 +7,7 @@ Create a spinning ascii cube using python3 and the curses library
 
 ### Goals
 - [x] Draw stationary cube
-- [ ] Rotate cube around x, y and z axes
+- [x] Rotate cube around x, y and z axes
 - [ ] Draw the faces using different ascii symbols to create a sense of depth
 
 ### To run
